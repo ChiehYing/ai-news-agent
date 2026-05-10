@@ -66,7 +66,7 @@ def main() -> None:
 
     # 4. 執行所有 output
     markdown.save(report)
-    # email_sender.send(report)
+    email_sender.send(report)
 
     # 5. 更新 seen_urls.json
     new_urls = {a.url for a in articles}
