@@ -41,7 +41,7 @@ REDDIT_RSS_FEEDS = [
 
 # 一般 RSS（AI 公司官方部落格 + 高品質個人/社群來源）
 RSS_FEEDS = [
-    "https://www.anthropic.com/rss.xml",
+    "https://raw.githubusercontent.com/taobojlen/anthropic-rss-feed/main/anthropic_news_rss.xml",
     "https://openai.com/blog/rss.xml",
     "https://deepmind.google/blog/rss.xml",
     "https://simonwillison.net/atom/everything/",
