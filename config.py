@@ -14,22 +14,46 @@ EMAIL_RECIPIENTS = os.getenv("EMAIL_RECIPIENTS", "")
 # === 模型設定 ===
 PROCESSOR_MODEL = os.getenv(
     "PROCESSOR_MODEL",
-    "nvidia/nemotron-3-nano-30b-a3b:free"    # 開發階段預設，之後換
+    "nvidia/nemotron-3-nano-30b-a3b:free"
 )
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 # === 來源設定 ===
-REDDIT_SUBREDDITS = ["LocalLLaMA", "MachineLearning", "ChatGPT"]
-REDDIT_TIME_FILTER = "week"     # top/week 高票文章
 
+# HackerNews API
+HN_TOP_URL = "https://hacker-news.firebaseio.com/v0/topstories.json"
+HN_ITEM_URL = "https://hacker-news.firebaseio.com/v0/item/{id}.json"
+
+# Reddit OAuth API（申請成功後啟用）
+REDDIT_SUBREDDITS = ["LocalLLaMA", "MachineLearning", "ChatGPT", "ClaudeAI", "PromptEngineering", "AIAssistants", "vibecoding"]
+REDDIT_TIME_FILTER = "week"
+
+# Reddit RSS（OAuth API 備援，目前主要使用）
+REDDIT_RSS_FEEDS = [
+    "https://www.reddit.com/r/LocalLLaMA/top/.rss?t=week",
+    "https://www.reddit.com/r/MachineLearning/top/.rss?t=week",
+    "https://www.reddit.com/r/ChatGPT/top/.rss?t=week",
+    "https://www.reddit.com/r/ClaudeAI/top/.rss?t=week",
+    "https://www.reddit.com/r/PromptEngineering/top/.rss?t=week",
+    "https://www.reddit.com/r/AIAssistants/top/.rss?t=week",
+    "https://www.reddit.com/r/vibecoding/top/.rss?t=week",
+]
+
+# 一般 RSS（AI 公司官方部落格 + 高品質個人/社群來源）
 RSS_FEEDS = [
     "https://www.anthropic.com/rss.xml",
     "https://openai.com/blog/rss.xml",
     "https://deepmind.google/blog/rss.xml",
+    "https://simonwillison.net/atom/everything/",
+    "https://huggingface.co/blog/feed.xml",
+    "https://www.latent.space/feed",
+    "https://dev.to/feed/tag/ai",
+    "https://dev.to/feed/tag/llm",
 ]
 
 # === 數量控制 ===
-REDDIT_FETCH_LIMIT = 20     # 每個 subreddit 抓幾篇
+REDDIT_FETCH_LIMIT = 20     # 每個 subreddit 抓幾篇（OAuth API 用）
+REDDIT_RSS_FETCH_LIMIT = 10 # 每個 Reddit RSS 來源抓幾篇
 HN_FETCH_LIMIT = 30         # HN 抓幾篇
 RSS_FETCH_LIMIT = 10        # 每個 RSS 來源抓幾篇
 FILTER_TOP_N = 10           # 第一階段篩選後保留幾篇送入摘要
@@ -55,6 +79,12 @@ READER_PROFILE = """
 4. Agent and RAG implementation insights
 5. Workflow and productivity tips from AI practitioners
 6. Significant model releases that affect developers
+
+### Also Welcome（即使不是頂尖來源）
+- 普通開發者分享的 AI 使用心得和 workflow
+- 實作經驗分享，包括踩坑和解決方式
+- 提示詞技巧的個人實驗結果
+這類內容對學習者的參考價值不亞於專業文章
 
 ### Content to Exclude
 - Academic papers without practical application

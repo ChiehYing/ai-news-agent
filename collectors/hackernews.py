@@ -3,13 +3,10 @@ import requests
 from datetime import datetime, timezone
 from typing import List
 
-from config import HN_FETCH_LIMIT
+from config import HN_FETCH_LIMIT, HN_TOP_URL, HN_ITEM_URL
 from models import Article
 
 logger = logging.getLogger(__name__)
-
-HN_TOP_URL = "https://hacker-news.firebaseio.com/v0/topstories.json"
-HN_ITEM_URL = "https://hacker-news.firebaseio.com/v0/item/{id}.json"
 
 
 def _strip_html(text: str) -> str:
