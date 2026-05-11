@@ -103,6 +103,10 @@ You are an expert AI content curator.
 Given a list of articles with titles and summaries, select the TOP {FILTER_TOP_N}
 most valuable articles for this reader.
 
+## Diversity Rule
+No more than 2 articles from the same source domain in your final selection.
+Prioritize variety: mix official AI company blogs, independent developers, community discussions, and practitioner newsletters.
+
 ## Output Format
 Return a JSON array only. No explanation, no markdown, no other text.
 
