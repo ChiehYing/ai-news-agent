@@ -58,6 +58,12 @@ HN_FETCH_LIMIT = 30         # HN 抓幾篇
 RSS_FETCH_LIMIT = 10        # 每個 RSS 來源抓幾篇
 FILTER_TOP_N = 10           # 第一階段篩選後保留幾篇送入摘要
 
+# 每個來源 domain 最多可以被選幾篇
+# None  → 不限制
+# 3     → 最多 3 篇
+# (1,3) → 最少 1 篇、最多 3 篇
+FILTER_MAX_PER_SOURCE = 2
+
 # === 路徑設定 ===
 REPORTS_DIR = "./reports"
 SEEN_URLS_FILE = "./seen_urls.json"
@@ -71,7 +77,7 @@ READER_PROFILE = """
 - Currently: Building agents from scratch, learning agentic frameworks
 - Stack: Python, Ollama (qwen3:14b), ChromaDB, OpenAI-compatible APIs
 
-### Content I Want（優先順序）
+### Content I Want (Priority Order)
 1. Practical experience sharing: what someone built and what they learned
 2. Model usage tips: prompt techniques, quirks, comparisons
 3. New AI tools: hands-on evaluation, real usage experience
@@ -80,11 +86,11 @@ READER_PROFILE = """
 5. Workflow and productivity tips from AI practitioners
 6. Significant model releases that affect developers
 
-### Also Welcome（即使不是頂尖來源）
-- 普通開發者分享的 AI 使用心得和 workflow
-- 實作經驗分享，包括踩坑和解決方式
-- 提示詞技巧的個人實驗結果
-這類內容對學習者的參考價值不亞於專業文章
+### Also Welcome (Even from Non-Top Sources)
+- AI usage tips and workflows shared by everyday developers
+- Implementation experience including pitfalls and how they were solved
+- Personal experiment results on prompt techniques
+These are as valuable for learners as articles from professional sources.
 
 ### Content to Exclude
 - Academic papers without practical application
@@ -93,6 +99,15 @@ READER_PROFILE = """
 - Marketing content without substance
 """
 
+def _source_limit_rule(limit) -> str:
+    if limit is None:
+        return ""
+    if isinstance(limit, int):
+        return f"\n- No more than {limit} articles from the same source domain."
+    min_n, max_n = limit
+    return f"\n- Select between {min_n} and {max_n} articles from the same source domain."
+
+
 # === Processor System Prompts ===
 FILTER_SYSTEM_PROMPT = f"""
 You are an expert AI content curator.
@@ -100,12 +115,10 @@ You are an expert AI content curator.
 {READER_PROFILE}
 
 ## Your Task
-Given a list of articles with titles and summaries, select the TOP {FILTER_TOP_N}
-most valuable articles for this reader.
+Given a list of articles with titles and summaries, evaluate each one against the reader profile above.
 
-## Diversity Rule
-No more than 2 articles from the same source domain in your final selection.
-Prioritize variety: mix official AI company blogs, independent developers, community discussions, and practitioner newsletters.
+## Selection Rules
+- Select the TOP {FILTER_TOP_N} most valuable articles for this reader.{_source_limit_rule(FILTER_MAX_PER_SOURCE)}
 
 ## Output Format
 Return a JSON array only. No explanation, no markdown, no other text.
