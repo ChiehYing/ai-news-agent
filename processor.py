@@ -51,7 +51,7 @@ def _stage1_filter(articles: List[Article]) -> List[str]:
         f"[{i+1}] {a.title}\nURL: {a.url}\nSummary: {(a.summary or '')[:150] or '(no summary)'}"
         for i, a in enumerate(articles)
     )
-    user_message = f"以下是今日收集的文章，請依照讀者 profile 選出最有價值的 {FILTER_TOP_N} 篇：\n\n{article_list}"
+    user_message = f"Here are today's articles:\n\n{article_list}"
 
     raw = _llm_call(FILTER_SYSTEM_PROMPT, user_message)
 
