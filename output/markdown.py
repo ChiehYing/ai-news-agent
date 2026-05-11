@@ -2,6 +2,7 @@ import logging
 import os
 from models import ProcessedReport
 from config import REPORTS_DIR
+from output import source_label
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,9 @@ def save(report: ProcessedReport) -> str:
         if tags_str:
             lines.append(tags_str)
             lines.append("")
-        lines.append(f"**來源：** {article.source} | **評分：** {article.score} | [原文連結]({article.url})")
+        label = source_label(article)
+        score_str = f" | **評分：** {article.score}" if article.score else ""
+        lines.append(f"**來源：** {label}{score_str} | [原文連結]({article.url})")
         lines.append("")
         lines.append("### 摘要")
         lines.append("")

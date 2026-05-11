@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 
 from config import GMAIL_ADDRESS, GMAIL_APP_PASSWORD, EMAIL_RECIPIENTS
 from models import ProcessedReport
+from output import source_label
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,9 @@ def _build_html(report: ProcessedReport) -> str:
         parts.append(f'<h2>{i}. <a href="{article.url}">{article.title}</a></h2>')
         if tags_html:
             parts.append(f"<p>{tags_html}</p>")
-        parts.append(f"<p><strong>來源：</strong>{article.source} | <strong>評分：</strong>{article.score}</p>")
+        label = source_label(article)
+        score_str = f" | <strong>評分：</strong>{article.score}" if article.score else ""
+        parts.append(f"<p><strong>來源：</strong>{label}{score_str}</p>")
         parts.append("<h3>摘要</h3>")
         parts.append(f"<p>{article.ai_summary.replace(chr(10), '<br>')}</p>")
         parts.append("<h3>學習筆記</h3>")
