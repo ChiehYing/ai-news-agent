@@ -1,5 +1,7 @@
+import html
 import json
 import logging
+import re
 import requests
 from datetime import datetime, timezone
 from typing import List
@@ -122,6 +124,11 @@ def _stage2_summarize(articles: List[Article]) -> tuple[List[Article], str]:
         logger.error(f"Raw response (first 2000 chars):\n{raw[:2000]}")
         raise
 
+    def _clean(text: str) -> str:
+        """移除 LLM 輸出中可能夾帶的 HTML 標籤與實體。"""
+        text = re.sub(r"<[^>]+>", "", text)
+        return html.unescape(text).strip()
+
     # 將 LLM 輸出回填到 Article 物件（用 URL 對應）
     url_to_article = {a.url: a for a in articles}
     for item in result.get("articles", []):
@@ -129,12 +136,12 @@ def _stage2_summarize(articles: List[Article]) -> tuple[List[Article], str]:
         if not article:
             continue
         article.tags = item.get("tags", [])
-        article.ai_summary = item.get("summary", "") + (
-            f"\n\n**Key Insight:** {item['key_insight']}" if item.get("key_insight") else ""
-        )
-        article.learning_note = item.get("learning_note", "")
+        summary = _clean(item.get("summary", ""))
+        key_insight = _clean(item.get("key_insight", ""))
+        article.ai_summary = summary + (f"\n\n**Key Insight:** {key_insight}" if key_insight else "")
+        article.learning_note = _clean(item.get("learning_note", ""))
 
-    highlights = result.get("highlights", "")
+    highlights = _clean(result.get("highlights", ""))
     logger.info(f"Stage 2: processed {len(articles)} articles")
     return articles, highlights
 

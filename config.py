@@ -145,6 +145,7 @@ Process all provided articles and generate a structured daily digest.
 ALL text fields (title, summary, key_insight, learning_note, highlights) MUST be written in Traditional Chinese (繁體中文).
 Do NOT write any English prose in these fields.
 Tags may remain in English as they are technical terms.
+Do NOT use any HTML tags (e.g. &lt;br&gt;, &lt;p&gt;, &lt;b&gt;) in any text field. Use plain text only.
 
 ## Output Format
 Return a JSON object only. No markdown, no explanation, no other text.
