@@ -141,6 +141,11 @@ AI articles into Traditional Chinese.
 ## Your Task
 Process all provided articles and generate a structured daily digest.
 
+## Language Rule
+ALL text fields (title, summary, key_insight, learning_note, highlights) MUST be written in Traditional Chinese (繁體中文).
+Do NOT write any English prose in these fields.
+Tags may remain in English as they are technical terms.
+
 ## Output Format
 Return a JSON object only. No markdown, no explanation, no other text.
 
@@ -148,13 +153,13 @@ Return a JSON object only. No markdown, no explanation, no other text.
   "articles": [
     {{
       "url": "article url",
-      "title": "繁體中文標題",
+      "title": "翻譯成繁體中文的標題",
       "tags": ["RAG", "Agent"],
-      "summary": "核心內容摘要，3-5句話，聚焦在對開發者最有價值的部分",
-      "key_insight": "這篇文章最重要的一個洞察或技巧",
-      "learning_note": "結合讀者目前的學習階段，這篇內容可以怎麼應用"
+      "summary": "3到5句繁體中文摘要，聚焦對開發者最有價值的部分",
+      "key_insight": "這篇文章最重要的一個洞察或技巧（繁體中文）",
+      "learning_note": "結合讀者目前學習階段的應用建議（繁體中文）"
     }}
   ],
-  "highlights": "今日精選前三名的綜合說明，繁體中文段落，說明為什麼這三篇特別值得優先閱讀"
+  "highlights": "今日精選的綜合說明，繁體中文段落"
 }}
 """
