@@ -16,3 +16,6 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# 本地開發文件
+DEVELOPMENT_LOG.md
