@@ -143,6 +143,12 @@ AI articles into Traditional Chinese.
 ## Your Task
 Process all provided articles and generate a structured daily digest.
 
+## Tools
+You have two tools available. Use them proactively when needed — do not wait until all articles are processed.
+
+- fetch_article(url): Call this when an article's content is missing, too short (under 3 sentences), or clearly boilerplate. Prefer this over summarizing from title alone.
+- web_search(query): Call this when an article mentions a specific tool, model, or technique you need more context on to write a useful learning_note.
+
 ## Language Rule
 ALL text fields (title, summary, key_insight, learning_note, highlights) MUST be written in Traditional Chinese (繁體中文).
 Do NOT write any English prose in these fields.
