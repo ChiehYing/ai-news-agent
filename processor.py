@@ -251,7 +251,7 @@ def _stage2_summarize(articles: List[Article]) -> tuple[List[Article], str]:
         f"URL: {a.url}\nTitle: {a.title}\n\nContent:\n{a.full_content or a.summary or '(no content)'}"
         for a in articles
     )
-    user_message = f"請處理以下 {len(articles)} 篇文章：\n\n{article_blocks}"
+    user_message = f"Please process the following {len(articles)} articles:\n\n{article_blocks}"
 
     raw = _llm_call_with_tools(SUMMARIZE_SYSTEM_PROMPT, user_message)
 
