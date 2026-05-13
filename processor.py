@@ -11,16 +11,62 @@ from config import (
     OPENROUTER_BASE_URL,
     PROCESSOR_MODEL,
     FILTER_TOP_N,
+    AGENT_MAX_TOOL_CALLS,
     FILTER_SYSTEM_PROMPT,
     SUMMARIZE_SYSTEM_PROMPT,
 )
 from models import Article, ProcessedReport
+from tools import fetch_article, web_search
 
 logger = logging.getLogger(__name__)
 
 
+_TOOL_DEFINITIONS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "fetch_article",
+            "description": (
+                "Fetch the full text of an article by URL using a content extractor. "
+                "Use this when an article's content is empty, too short, or low quality."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string", "description": "The article URL to fetch."}
+                },
+                "required": ["url"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": (
+                "Search the web for supplementary information about a topic. "
+                "Use this to find background context, related discussions, or details "
+                "not covered in the article itself."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "The search query."}
+                },
+                "required": ["query"],
+            },
+        },
+    },
+]
+
+_TOOL_DISPATCH = {
+    "fetch_article": lambda args: fetch_article(args["url"]),
+    "web_search": lambda args: web_search(args["query"]),
+}
+
+
 def _llm_call(system_prompt: str, user_message: str) -> str:
-    """向 OpenRouter 發送一次 LLM 請求，回傳 assistant message 文字。"""
+    """向 OpenRouter 發送一次 LLM 請求（不含 tools），回傳 assistant message 文字。"""
     resp = requests.post(
         f"{OPENROUTER_BASE_URL}/chat/completions",
         headers={
@@ -42,6 +88,103 @@ def _llm_call(system_prompt: str, user_message: str) -> str:
         logger.error(f"Unexpected API response: {data}")
         raise ValueError(f"API response missing 'choices': {data}")
     return data["choices"][0]["message"]["content"]
+
+
+def _llm_call_with_tools(system_prompt: str, user_message: str) -> str:
+    """
+    向 OpenRouter 發送帶工具的 LLM 請求，執行 tool use loop。
+    LLM 可以呼叫工具補充資訊，直到輸出最終結果。
+    最多執行 AGENT_MAX_TOOL_CALLS 次工具呼叫後強制結束。
+    回傳最終的 assistant 文字內容。
+    """
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_message},
+    ]
+    tool_calls_used = 0
+
+    while tool_calls_used < AGENT_MAX_TOOL_CALLS:
+        resp = requests.post(
+            f"{OPENROUTER_BASE_URL}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": PROCESSOR_MODEL,
+                "messages": messages,
+                "tools": _TOOL_DEFINITIONS,
+                "tool_choice": "auto",
+            },
+            timeout=180,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+        if "choices" not in data:
+            logger.error(f"Unexpected API response: {data}")
+            raise ValueError(f"API response missing 'choices': {data}")
+
+        choice = data["choices"][0]
+        message = choice["message"]
+        finish_reason = choice.get("finish_reason", "")
+
+        # 把 assistant 訊息加入對話歷史
+        messages.append(message)
+
+        if finish_reason != "tool_calls":
+            # LLM 決定不再呼叫工具，回傳最終結果
+            return message.get("content") or ""
+
+        # 執行所有工具呼叫
+        tool_calls = message.get("tool_calls", [])
+        if not tool_calls:
+            return message.get("content") or ""
+
+        for tc in tool_calls:
+            tool_name = tc["function"]["name"]
+            try:
+                args = json.loads(tc["function"]["arguments"])
+            except json.JSONDecodeError:
+                args = {}
+
+            if tool_name in _TOOL_DISPATCH:
+                logger.info(f"Agent tool call: {tool_name}({args})")
+                result = _TOOL_DISPATCH[tool_name](args)
+                tool_calls_used += 1
+            else:
+                logger.warning(f"Unknown tool called: {tool_name}")
+                result = f"Error: unknown tool '{tool_name}'"
+
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tc["id"],
+                "content": result or "(no result)",
+            })
+
+        logger.info(f"Agent tool calls used so far: {tool_calls_used}/{AGENT_MAX_TOOL_CALLS}")
+
+    # 超過上限，用 tool_choice=none 強制拿最終答案
+    logger.warning(f"Agent reached max tool calls ({AGENT_MAX_TOOL_CALLS}), forcing final response")
+    resp = requests.post(
+        f"{OPENROUTER_BASE_URL}/chat/completions",
+        headers={
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": PROCESSOR_MODEL,
+            "messages": messages,
+            "tools": _TOOL_DEFINITIONS,
+            "tool_choice": "none",
+        },
+        timeout=180,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    if "choices" not in data:
+        raise ValueError(f"API response missing 'choices': {data}")
+    return data["choices"][0]["message"].get("content") or ""
 
 
 def _stage1_filter(articles: List[Article]) -> List[str]:
@@ -110,7 +253,7 @@ def _stage2_summarize(articles: List[Article]) -> tuple[List[Article], str]:
     )
     user_message = f"請處理以下 {len(articles)} 篇文章：\n\n{article_blocks}"
 
-    raw = _llm_call(SUMMARIZE_SYSTEM_PROMPT, user_message)
+    raw = _llm_call_with_tools(SUMMARIZE_SYSTEM_PROMPT, user_message)
 
     raw = raw.strip()
     if raw.startswith("```"):

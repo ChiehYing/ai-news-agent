@@ -5,6 +5,7 @@ load_dotenv()
 
 # === API Keys ===
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 
 # === Email 設定 ===
 GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS", "")
@@ -57,6 +58,7 @@ REDDIT_RSS_FETCH_LIMIT = 10 # 每個 Reddit RSS 來源抓幾篇
 HN_FETCH_LIMIT = 30         # HN 抓幾篇
 RSS_FETCH_LIMIT = 10        # 每個 RSS 來源抓幾篇
 FILTER_TOP_N = 10           # 第一階段篩選後保留幾篇送入摘要
+AGENT_MAX_TOOL_CALLS = 20   # Stage 2 Agent loop 最多工具呼叫次數
 
 # 每個來源 domain 最多可以被選幾篇
 # None  → 不限制

@@ -22,9 +22,13 @@ collectors/          各來源獨立抓取，回傳 List[Article]
   ├── hackernews.py  HN Firebase API
   └── rss.py         RSS + Reddit RSS
     ↓
-processor.py         兩階段 LLM Pipeline
-  Stage 1：title + summary → 篩選 TOP N 篇
-  Stage 2：完整內容 → 批次摘要、標籤、學習筆記
+processor.py         兩階段 Pipeline（Stage 2 為 Agent）
+  Stage 1：title + summary → 篩選 TOP N 篇（固定 LLM call）
+  Stage 2：Agent loop → LLM 可自主呼叫工具補充資訊後輸出摘要
+    ↓
+tools/               Stage 2 Agent 可用的工具
+  ├── fetch.py       fetch_article：用 trafilatura 抓文章全文
+  └── search.py      web_search：DuckDuckGo → Tavily 兩層備援搜尋
     ↓
 output/
   ├── markdown.py    → reports/YYYY-MM-DD.md
@@ -59,6 +63,7 @@ PROCESSOR_MODEL=       # 可選，覆蓋預設模型
 GMAIL_ADDRESS=         # Gmail 帳號
 GMAIL_APP_PASSWORD=    # Gmail 應用程式密碼（非登入密碼）
 EMAIL_RECIPIENTS=      # 收件人，逗號分隔
+TAVILY_API_KEY=        # 可選，Tavily 搜尋 API key（DuckDuckGo 失敗時備援）
 ```
 
 ### 主要設定（config.py）
@@ -67,6 +72,7 @@ EMAIL_RECIPIENTS=      # 收件人，逗號分隔
 FILTER_TOP_N = 10           # 每日精選篇數
 FILTER_MAX_PER_SOURCE = 2   # 每個來源最多幾篇（None 不限制，或用 (1,3) 設範圍）
 PROCESSOR_MODEL = "nvidia/nemotron-3-nano-30b-a3b:free"  # OpenRouter 模型
+AGENT_MAX_TOOL_CALLS = 20   # Stage 2 Agent 最多工具呼叫次數
 ```
 
 ## 安裝與執行
