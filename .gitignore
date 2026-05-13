@@ -18,5 +18,7 @@ env/
 Thumbs.db
 
 # 本地開發文件
+CLAUDE.md
 DEVELOPMENT_LOG.md
 DEVELOPMENT_LOG_*.md
+test_*.py
