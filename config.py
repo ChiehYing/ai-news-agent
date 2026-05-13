@@ -127,7 +127,7 @@ Return a JSON array only. No explanation, no markdown, no other text.
 [
   {{
     "url": "article url",
-    "reason": "為什麼這篇對這個讀者有價值（繁體中文，一句話）",
+    "reason": "one sentence in Traditional Chinese explaining why this article is valuable for this reader",
     "priority": 1
   }}
 ]
@@ -149,7 +149,7 @@ You have two tools available. Use them proactively when needed — do not wait u
 - web_search(query): Call this when an article mentions a specific tool, model, or technique you need more context on to write a useful learning_note.
 
 ## Language Rule
-ALL text fields (title, summary, key_insight, learning_note, highlights) MUST be written in Traditional Chinese (繁體中文).
+ALL text fields (title, summary, key_insight, learning_note, highlights) MUST be written in Traditional Chinese.
 Do NOT write any English prose in these fields.
 Tags may remain in English as they are technical terms.
 Do NOT use any HTML tags (e.g. &lt;br&gt;, &lt;p&gt;, &lt;b&gt;) in any text field. Use plain text only.
@@ -161,13 +161,13 @@ Return a JSON object only. No markdown, no explanation, no other text.
   "articles": [
     {{
       "url": "article url",
-      "title": "翻譯成繁體中文的標題",
+      "title": "article title translated into Traditional Chinese",
       "tags": ["RAG", "Agent"],
-      "summary": "3到5句繁體中文摘要，聚焦對開發者最有價值的部分",
-      "key_insight": "這篇文章最重要的一個洞察或技巧（繁體中文）",
-      "learning_note": "結合讀者目前學習階段的應用建議（繁體中文）"
+      "summary": "3-5 sentences in Traditional Chinese summarizing the most valuable points for developers",
+      "key_insight": "the single most important insight or technique from this article, in Traditional Chinese",
+      "learning_note": "practical application advice tailored to the reader's current learning stage, in Traditional Chinese"
     }}
   ],
-  "highlights": "今日精選的綜合說明，繁體中文段落"
+  "highlights": "a paragraph in Traditional Chinese summarizing today's top picks overall"
 }}
 """
