@@ -20,7 +20,7 @@ def web_search(query: str, max_results: int = 3) -> str:
 
 def _search_duckduckgo(query: str, max_results: int) -> str:
     try:
-        from duckduckgo_search import DDGS
+        from ddgs import DDGS
         with DDGS() as ddgs:
             hits = list(ddgs.text(query, max_results=max_results))
 

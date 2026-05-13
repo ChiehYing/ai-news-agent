@@ -3,5 +3,5 @@ python-dotenv==1.2.2
 requests==2.33.1
 trafilatura==2.0.0
 lxml_html_clean==0.4.4
-duckduckgo-search==8.1.1
+ddgs==9.14.2
 tavily-python==0.7.24
