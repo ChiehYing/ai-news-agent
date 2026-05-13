@@ -26,7 +26,7 @@ HN_TOP_URL = "https://hacker-news.firebaseio.com/v0/topstories.json"
 HN_ITEM_URL = "https://hacker-news.firebaseio.com/v0/item/{id}.json"
 
 # Reddit OAuth API（申請成功後啟用）
-REDDIT_SUBREDDITS = ["LocalLLaMA", "MachineLearning", "ChatGPT", "ClaudeAI", "PromptEngineering", "AIAssistants", "vibecoding"]
+REDDIT_SUBREDDITS = ["LocalLLaMA", "MachineLearning", "ChatGPT", "ClaudeAI", "PromptEngineering", "vibecoding"]
 REDDIT_TIME_FILTER = "week"
 
 # Reddit RSS（OAuth API 備援，目前主要使用）
@@ -36,7 +36,6 @@ REDDIT_RSS_FEEDS = [
     "https://www.reddit.com/r/ChatGPT/top/.rss?t=week",
     "https://www.reddit.com/r/ClaudeAI/top/.rss?t=week",
     "https://www.reddit.com/r/PromptEngineering/top/.rss?t=week",
-    "https://www.reddit.com/r/AIAssistants/top/.rss?t=week",
     "https://www.reddit.com/r/vibecoding/top/.rss?t=week",
 ]
 
